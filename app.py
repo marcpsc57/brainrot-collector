@@ -32,7 +32,3 @@ for index, row in df.iterrows():
             st.rerun()
     with c2:
         st.write(f"**{row.get('nom', 'Inconnu')}**")
-        with c2:
-            st.write(f"**{row.get('nom', 'Inconnu')}**")
-else:
-    st.warning("Le tableau est vide.")
