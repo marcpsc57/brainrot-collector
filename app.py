@@ -5,8 +5,9 @@ from google.oauth2.service_account import Credentials
 
 st.set_page_config(page_title="BRAINROT COLLECTOR", layout="wide")
 
-# ON COPIE LA CLÉ SUR PLUSIEURS LIGNES ICI
-PRIVATE_KEY = """-----BEGIN PRIVATE KEY-----
+# On utilise les triples guillemets pour encadrer la clé EXACTEMENT
+# Cela permet d'éviter les erreurs de caractères invisibles.
+raw_key = """-----BEGIN PRIVATE KEY-----
 MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDTxx+vkltYKShm
 ou26Gnfx6o68qjPyvBSpjbiuFxReayb4hxvnOv18R3JSPQuzhUxd9q985UgJ6jbU
 VGjjIWrut74nhXVw49q5OnPji58Ukage9GD/0l66IRGb56UdvRk1sOOYSeAr+ky1
@@ -35,11 +36,14 @@ nu4evFiO9JRM/wOR6oepL67H+jNDvq4Ea9g7t7QPyy/92aGaNYlPYZAqEazIejD6P
 ngo1rYlMIKdhVHrntqYUuxKc=
 -----END PRIVATE KEY-----"""
 
+# On nettoie la clé de tout espace avant/après pour éviter l'erreur ASN.1
+CLEAN_KEY = raw_key.strip()
+
 SERVICE_ACCOUNT_INFO = {
     "type": "service_account",
     "project_id": "brainrot-project-491423",
     "private_key_id": "dd28909d6aaaaf314cc05b83ce8856ff9c9fe03e",
-    "private_key": PRIVATE_KEY,
+    "private_key": CLEAN_KEY,
     "client_email": "brainrot-bot@brainrot-project-491423.iam.gserviceaccount.com",
     "client_id": "107186528494643778636",
     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
