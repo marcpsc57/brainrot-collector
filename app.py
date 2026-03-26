@@ -5,8 +5,8 @@ from google.oauth2.service_account import Credentials
 
 st.set_page_config(page_title="BRAINROT COLLECTOR", layout="wide")
 
-# 1. On définit la clé brute (ne touche pas aux guillemets triples)
-raw_key = """-----BEGIN PRIVATE KEY-----
+# 1. Ta clé brute avec ses potentielles erreurs de copier-coller
+raw_data = """-----BEGIN PRIVATE KEY-----
 MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDTxx+vkltYKShm
 ou26Gnfx6o68qjPyvBSpjbiuFxReayb4hxvnOv18R3JSPQuzhUxd9q985UgJ6jbU
 VGjjIWrut74nhXVw49q5OnPji58Ukage9GD/0l66IRGb56UdvRk1sOOYSeAr+ky1
@@ -35,16 +35,22 @@ nu4evFiO9JRM/wOR6oepL67H+jNDvq4Ea9g7t7QPyy/92aGaNYlPYZAqEazIejD6P
 ngo1rYlMIKdhVHrntqYUuxKc=
 -----END PRIVATE KEY-----"""
 
-# 2. NETTOYAGE CHIRURGICAL (Anti-erreur ASN.1)
-# On enlève les espaces, et on reconstruit la clé proprement ligne par ligne
-lines = [line.strip() for line in raw_key.strip().splitlines()]
-clean_key = "\n".join(lines)
+# 2. NETTOYAGE CHIRURGICAL EXTRÊME
+# On extrait uniquement ce qui est entre les balises BEGIN et END
+start_marker = "-----BEGIN PRIVATE KEY-----"
+end_marker = "-----END PRIVATE KEY-----"
+try:
+    content = raw_data.split(start_marker)[1].split(end_marker)[0]
+    # On reconstruit la clé parfaitement
+    CLEAN_KEY = f"{start_marker}\n{content.strip()}\n{end_marker}"
+except:
+    CLEAN_KEY = raw_data.strip()
 
 SERVICE_ACCOUNT_INFO = {
     "type": "service_account",
     "project_id": "brainrot-project-491423",
     "private_key_id": "dd28909d6aaaaf314cc05b83ce8856ff9c9fe03e",
-    "private_key": clean_key,
+    "private_key": CLEAN_KEY,
     "client_email": "brainrot-bot@brainrot-project-491423.iam.gserviceaccount.com",
     "client_id": "107186528494643778636",
     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
