@@ -8,9 +8,13 @@ st.set_page_config(page_title="BRAINROT COLLECTOR", layout="wide")
 
 @st.cache_resource
 def connect_to_gsheet():
-    # On récupère la ligne de texte MY_JSON_KEY des secrets
+    # Lecture du secret sous forme de texte simple
     json_text = st.secrets["MY_JSON_KEY"]
     info = json.loads(json_text)
+    
+    # On s'assure que les sauts de ligne de la clé sont bien interprétés
+    info["private_key"] = info["private_key"].replace("\\n", "\n")
+    
     scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
     creds = Credentials.from_service_account_info(info, scopes=scope)
     return gspread.authorize(creds)
@@ -26,19 +30,14 @@ except Exception as e:
 
 st.title("💎 BRAINROT COLLECTOR")
 
-# Affichage des items avec boutons
-if not df.empty:
-    for index, row in df.iterrows():
-        c1, c2 = st.columns([1, 9])
-        with c1:
-            # On vérifie si l'objet est possédé (1) ou non (0)
-            is_owned = str(row.get('possede', 0)) == "1"
-            if st.button("✅" if is_owned else "⬜", key=f"btn_{index}"):
-                new_val = 0 if is_owned else 1
-                # Mise à jour précise dans Google Sheet
-                worksheet.update_cell(index + 2, 5, new_val)
-                st.rerun()
-        with c2:
-            st.write(f"**{row.get('nom', 'Inconnu')}**")
-else:
-    st.info("Le tableau Google Sheet semble vide.")
+# Affichage des items
+for index, row in df.iterrows():
+    c1, c2 = st.columns([1, 9])
+    with c1:
+        is_owned = str(row.get('possede', 0)) == "1"
+        if st.button("✅" if is_owned else "⬜", key=f"btn_{index}"):
+            new_val = 0 if is_owned else 1
+            worksheet.update_cell(index + 2, 5, new_val)
+            st.rerun()
+    with c2:
+        st.write(f"**{row.get('nom', 'Inconnu')}**")
