@@ -2,52 +2,41 @@ import streamlit as st
 import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
-import os
 
-# 1. CONFIG
-st.set_page_config(page_title="BRAINROT COLLECTOR", page_icon="💎", layout="wide")
+st.set_page_config(page_title="BRAINROT COLLECTOR", layout="wide")
 
-# 2. CONNEXION VIA LE FICHIER JSON
+# Connexion via le fichier JSON que tu viens d'ajouter
 @st.cache_resource
-def get_gspread_client():
-    # On définit les accès
+def connect_to_gsheet():
     scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-    
-    # On cherche le fichier creds.json que tu as mis sur GitHub
-    if os.path.exists("creds.json"):
-        creds = Credentials.from_service_account_file("creds.json", scopes=scope)
-    else:
-        st.error("Fichier creds.json introuvable sur GitHub !")
-        st.stop()
-        
+    # On lit le fichier creds.json directement sur GitHub
+    creds = Credentials.from_service_account_file("creds.json", scopes=scope)
     return gspread.authorize(creds)
 
-# 3. LECTURE DU SHEET
-SHEET_ID = "1QpDkvd06ZmAWbVmFvpOdFO0_Tb3UvNMVnPlSy3hPzwQ"
-
 try:
-    gc = get_gspread_client()
-    sh = gc.open_by_key(SHEET_ID)
+    gc = connect_to_gsheet()
+    # Ton ID de Sheet
+    sh = gc.open_by_key("1QpDkvd06ZmAWbVmFvpOdFO0_Tb3UvNMVnPlSy3hPzwQ")
     worksheet = sh.get_worksheet(0)
-    data = worksheet.get_all_records()
-    df = pd.DataFrame(data)
+    df = pd.DataFrame(worksheet.get_all_records())
 except Exception as e:
     st.error(f"Erreur de connexion : {e}")
     st.stop()
 
-# 4. INTERFACE
 st.title("💎 BRAINROT COLLECTOR")
 
+# Affichage des items
 if not df.empty:
     for index, row in df.iterrows():
         c1, c2 = st.columns([1, 9])
         with c1:
-            is_owned = str(row.get('possede', 0)) == "1"
-            if st.button("✅" if is_owned else "⬜", key=f"btn_{index}"):
-                new_val = 0 if is_owned else 1
-                # On met à jour la colonne E (5)
-                worksheet.update_cell(index + 2, 5, new_val)
+            val = str(row.get('possede', 0))
+            if st.button("✅" if val == "1" else "⬜", key=f"btn_{index}"):
+                new_val = 1 if val == "0" else 0
+                worksheet.update_cell(index + 2, 5, new_val) # Colonne 5 = 'possede'
                 st.rerun()
+        with c2:
+            st.write(f"**{row.get('nom', 'Inconnu')}**")
         with c2:
             st.write(f"**{row.get('nom', 'Inconnu')}**")
 else:
