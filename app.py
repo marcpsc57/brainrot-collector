@@ -3,10 +3,8 @@ import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
 
-# Configuration de l'affichage
 st.set_page_config(page_title="BRAINROT COLLECTOR", layout="wide")
 
-# Tes accès Google Cloud intégrés
 SERVICE_ACCOUNT_INFO = {
     "type": "service_account",
     "project_id": "brainrot-project-491423",
@@ -23,7 +21,10 @@ SERVICE_ACCOUNT_INFO = {
 @st.cache_resource
 def connect_to_gsheet():
     scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-    creds = Credentials.from_service_account_info(SERVICE_ACCOUNT_INFO, scopes=scope)
+    # On nettoie la clé ici
+    info = SERVICE_ACCOUNT_INFO.copy()
+    info["private_key"] = info["private_key"].replace("\\n", "\n")
+    creds = Credentials.from_service_account_info(info, scopes=scope)
     return gspread.authorize(creds)
 
 try:
@@ -48,5 +49,3 @@ if not df.empty:
                 st.rerun()
         with c2:
             st.write(f"**{row.get('nom', 'Inconnu')}**")
-else:
-    st.info("Le tableau est vide.")
