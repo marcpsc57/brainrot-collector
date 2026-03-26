@@ -5,8 +5,8 @@ from google.oauth2.service_account import Credentials
 
 st.set_page_config(page_title="BRAINROT COLLECTOR", layout="wide")
 
-# 1. La clé brute (ne change rien ici)
-raw_key = """-----BEGIN PRIVATE KEY-----
+# 1. Ta clé brute (Copie-colle là bien entre les triple guillemets)
+raw_key_data = """-----BEGIN PRIVATE KEY-----
 MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDTxx+vkltYKShm
 ou26Gnfx6o68qjPyvBSpjbiuFxReayb4hxvnOv18R3JSPQuzhUxd9q985UgJ6jbU
 VGjjIWrut74nhXVw49q5OnPji58Ukage9GD/0l66IRGb56UdvRk1sOOYSeAr+ky1
@@ -35,15 +35,16 @@ nu4evFiO9JRM/wOR6oepL67H+jNDvq4Ea9g7t7QPyy/92aGaNYlPYZAqEazIejD6P
 ngo1rYlMIKdhVHrntqYUuxKc=
 -----END PRIVATE KEY-----"""
 
-# 2. NETTOYAGE CHIRURGICAL (Anti-erreur Byte 1624/61)
-# On force le remplacement des sauts de ligne et on vire les espaces traîtres
-clean_key = raw_key.strip().replace("\\n", "\n")
+# 2. NETTOYAGE NUCLÉAIRE (Pour corriger l'erreur ASN.1 extra data)
+lines = raw_key_data.strip().split('\n')
+clean_lines = [line.strip() for line in lines if line.strip()]
+CLEAN_KEY = '\n'.join(clean_lines)
 
 SERVICE_ACCOUNT_INFO = {
     "type": "service_account",
     "project_id": "brainrot-project-491423",
     "private_key_id": "dd28909d6aaaaf314cc05b83ce8856ff9c9fe03e",
-    "private_key": clean_key,
+    "private_key": CLEAN_KEY,
     "client_email": "brainrot-bot@brainrot-project-491423.iam.gserviceaccount.com",
     "client_id": "107186528494643778636",
     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
@@ -60,7 +61,6 @@ def connect_to_gsheet():
 
 try:
     gc = connect_to_gsheet()
-    # On ouvre ton Sheet par son ID
     sh = gc.open_by_key("1QpDkvd06ZmAWbVmFvpOdFO0_Tb3UvNMVnPlSy3hPzwQ")
     worksheet = sh.get_worksheet(0)
     df = pd.DataFrame(worksheet.get_all_records())
@@ -74,7 +74,6 @@ if not df.empty:
     for index, row in df.iterrows():
         c1, c2 = st.columns([1, 9])
         with c1:
-            # On vérifie la colonne de possession (colonne E = index 4)
             is_owned = str(row.get('possede', 0)) == "1"
             if st.button("✅" if is_owned else "⬜", key=f"btn_{index}"):
                 new_val = 1 if not is_owned else 0
