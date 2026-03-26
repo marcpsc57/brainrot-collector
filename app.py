@@ -5,7 +5,7 @@ from google.oauth2.service_account import Credentials
 
 st.set_page_config(page_title="BRAINROT COLLECTOR", layout="wide")
 
-# 1. Ta clé brute avec ses potentielles erreurs de copier-coller
+# 1. On définit la clé brute
 raw_data = """-----BEGIN PRIVATE KEY-----
 MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDTxx+vkltYKShm
 ou26Gnfx6o68qjPyvBSpjbiuFxReayb4hxvnOv18R3JSPQuzhUxd9q985UgJ6jbU
@@ -35,16 +35,10 @@ nu4evFiO9JRM/wOR6oepL67H+jNDvq4Ea9g7t7QPyy/92aGaNYlPYZAqEazIejD6P
 ngo1rYlMIKdhVHrntqYUuxKc=
 -----END PRIVATE KEY-----"""
 
-# 2. NETTOYAGE CHIRURGICAL EXTRÊME
-# On extrait uniquement ce qui est entre les balises BEGIN et END
-start_marker = "-----BEGIN PRIVATE KEY-----"
-end_marker = "-----END PRIVATE KEY-----"
-try:
-    content = raw_data.split(start_marker)[1].split(end_marker)[0]
-    # On reconstruit la clé parfaitement
-    CLEAN_KEY = f"{start_marker}\n{content.strip()}\n{end_marker}"
-except:
-    CLEAN_KEY = raw_data.strip()
+# 2. NETTOYAGE TOTAL (Anti "Extra Data")
+# On découpe, on nettoie chaque ligne de ses espaces, et on vire les lignes vides
+clean_lines = [l.strip() for l in raw_data.strip().splitlines() if l.strip()]
+CLEAN_KEY = "\n".join(clean_lines)
 
 SERVICE_ACCOUNT_INFO = {
     "type": "service_account",
@@ -80,7 +74,10 @@ if not df.empty:
     for index, row in df.iterrows():
         c1, c2 = st.columns([1, 9])
         with c1:
-            is_owned = str(row.get('possede', 0)) == "1"
+            # On gère si la colonne s'appelle 'possede' ou 'possédé'
+            col_name = 'possede' if 'possede' in df.columns else df.columns[4]
+            is_owned = str(row.get(col_name, 0)) == "1"
+            
             if st.button("✅" if is_owned else "⬜", key=f"btn_{index}"):
                 new_val = 1 if not is_owned else 0
                 worksheet.update_cell(index + 2, 5, new_val)
