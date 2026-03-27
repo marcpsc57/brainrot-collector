@@ -3,13 +3,31 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 # --- 1. CONFIGURATION DE LA PAGE ---
-st.set_page_config(page_title="Brainrot Collector - FLASH EDITION", layout="wide")
+st.set_page_config(page_title="MK-BRAINROT", layout="wide")
 
 # --- 2. DESIGN & FLASH COLORS (CSS) ---
 st.markdown("""
     <style>
     .main { background-color: #0e1117; }
     
+    /* TITRE RAINBOW FLASH */
+    @keyframes rainbow {
+        0% { color: #ff0000; text-shadow: 0 0 10px #ff0000; }
+        20% { color: #ffff00; text-shadow: 0 0 10px #ffff00; }
+        40% { color: #00ff00; text-shadow: 0 0 10px #00ff00; }
+        60% { color: #00ffff; text-shadow: 0 0 10px #00ffff; }
+        80% { color: #ff00ff; text-shadow: 0 0 10px #ff00ff; }
+        100% { color: #ff0000; text-shadow: 0 0 10px #ff0000; }
+    }
+    .title-rainbow {
+        font-size: 50px !important;
+        font-weight: bold;
+        animation: rainbow 3s linear infinite;
+        text-align: center;
+        display: block;
+        margin-bottom: 20px;
+    }
+
     /* Animation Flash / Pulsation */
     @keyframes flash-green { 0%, 100% { color: #00ff00; text-shadow: 0 0 5px #00ff00; } 50% { color: #008800; text-shadow: 0 0 20px #00ff00; } }
     @keyframes flash-blue { 0%, 100% { color: #0088ff; text-shadow: 0 0 5px #0088ff; } 50% { color: #0044bb; text-shadow: 0 0 20px #0088ff; } }
@@ -17,15 +35,15 @@ st.markdown("""
     @keyframes flash-yellow { 0%, 100% { color: #ffff00; text-shadow: 0 0 5px #ffff00; } 50% { color: #aa8800; text-shadow: 0 0 25px #ffff00; } }
     @keyframes flash-red { 0%, 100% { color: #ff0000; text-shadow: 0 0 5px #ff0000; } 50% { color: #880000; text-shadow: 0 0 30px #ff0000; } }
     @keyframes flash-pink { 0%, 100% { color: #ff007f; text-shadow: 0 0 5px #ff007f; } 50% { color: #aa0055; text-shadow: 0 0 30px #ff007f; } }
-    @keyframes flash-white { 0%, 100% { color: #ffffff; text-shadow: 0 0 5px #ffffff; } 50% { color: #888888; text-shadow: 0 0 40px #ffffff; } }
+    @keyframes flash-white { 0%, 100% { color: #ffffff; text-shadow: 0 0 5px #ffffff; } 50% { color: #888888; text-shadow: 0 0 20px #ffffff; } }
 
     .rare-common { animation: flash-green 2s infinite; font-weight: bold; }
     .rare-rare { animation: flash-blue 2s infinite; font-weight: bold; }
-    .rare-epic { animation: flash-purple 1.5s infinite; font-weight: bold; }
-    .rare-legendaire { animation: flash-yellow 1.2s infinite; font-weight: bold; }
-    .rare-mythic { animation: flash-red 1s infinite; font-weight: bold; }
-    .rare-brainrotgod { animation: flash-pink 0.8s infinite; font-weight: bold; }
-    .rare-secret { animation: flash-white 0.5s infinite; font-weight: bold; }
+    .rare-epic { animation: flash-purple 1.8s infinite; font-weight: bold; }
+    .rare-legendaire { animation: flash-yellow 1.5s infinite; font-weight: bold; }
+    .rare-mythic { animation: flash-red 1.2s infinite; font-weight: bold; }
+    .rare-brainrotgod { animation: flash-pink 1s infinite; font-weight: bold; }
+    .rare-secret { animation: flash-white 1.5s infinite; font-weight: bold; } /* RALENTI ICI */
 
     .stButton > button { width: 100%; border-radius: 5px; font-weight: bold; }
     </style>
@@ -37,8 +55,8 @@ if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
 db = firestore.client()
 
-# --- 4. BARRE DE RECHERCHE ET TITRE ---
-st.title("🧪 Brainrot Collector - FLASH EDITION")
+# --- 4. TITRE MK-BRAINROT ---
+st.markdown('<h1 class="title-rainbow">MK-BRAINROT</h1>', unsafe_allow_html=True)
 recherche = st.text_input("🔍 Trouve ton Brainrot...", "").lower()
 
 # --- 5. SYSTÈME D'ONGLETS ---
@@ -83,9 +101,9 @@ for i, cat in enumerate(categories):
     with onglets[i]:
         afficher_la_liste(cat, recherche)
 
-# --- 7. AJOUT DE NOUVEAUX ITEMS (LE FORMULAIRE) ---
+# --- 7. AJOUT DE NOUVEAUX ITEMS ---
 st.write("---")
-with st.expander("➕ AJOUTER UN NOUVEL ITEM (ADMIN ONLY)"):
+with st.expander("➕ AJOUTER UN NOUVEL ITEM"):
     new_nom = st.text_input("Nom de l'item")
     new_rarete = st.selectbox("Rareté", ["COMMON", "RARE", "EPIC", "LEGENDAIRE", "MYTHIC", "BRAINROTGOD", "SECRET"])
     if st.button("Enregistrer dans la base"):
@@ -98,5 +116,3 @@ with st.expander("➕ AJOUTER UN NOUVEL ITEM (ADMIN ONLY)"):
             })
             st.success(f"{new_nom} a été ajouté !")
             st.rerun()
-        else:
-            st.error("Mets un nom siboire !")
