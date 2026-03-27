@@ -1,237 +1,68 @@
 import streamlit as st
 
+# Configuration de la page
 st.set_page_config(page_title="BRAINROT COLLECTOR", layout="wide")
 
-# --- LISTE DE DONNÉES ---
-LISTE_FIXE = [
+# --- 1. LA LISTE SOURCE (TES DONNÉES) ---
+# On définit cette liste en DUR pour que l'app ait toujours une base saine
+DONNEES_INITIALES = [
     {"nom": "fishini bossini", "rarete": "COMMON", "base_page": "1", "possede": 1},
-    {"nom": "lirili larila", "rarete": "COMMON", "base_page": "1", "possede": 1},
-    {"nom": "tim cheese", "rarete": "COMMON", "base_page": "1", "possede": 1},
-    {"nom": "fluri flura", "rarete": "COMMON", "base_page": "1", "possede": 1},
-    {"nom": "penguino cocosino", "rarete": "COMMON", "base_page": "1", "possede": 1},
-    {"nom": "svinina bombardino", "rarete": "COMMON", "base_page": "1", "possede": 1},
     {"nom": "pipi kiwi", "rarete": "COMMON", "base_page": "1", "possede": 0},
-    {"nom": "pipi avocado", "rarete": "COMMON", "base_page": "1", "possede": 0},
     {"nom": "trippi troppi", "rarete": "RARE", "base_page": "2", "possede": 1},
-    {"nom": "tung tung sahur", "rarete": "RARE", "base_page": "2", "possede": 1},
-    {"nom": "gangster footera", "rarete": "RARE", "base_page": "2", "possede": 1},
-    {"nom": "boneca ambalabu", "rarete": "RARE", "base_page": "2", "possede": 1},
-    {"nom": "pipi corni", "rarete": "RARE", "base_page": "2", "possede": 1},
-    {"nom": "Ta ta sahur", "rarete": "RARE", "base_page": "2", "possede": 1},
-    {"nom": "burbaloni watermeloni", "rarete": "RARE", "base_page": "2", "possede": 1},
-    {"nom": "pipi potato", "rarete": "RARE", "base_page": "2", "possede": 1},
     {"nom": "cappuccino assassino", "rarete": "EPIC", "base_page": "3", "possede": 1},
-    {"nom": "brr brr patapim", "rarete": "EPIC", "base_page": "3", "possede": 1},
-    {"nom": "trulimero trulicina", "rarete": "EPIC", "base_page": "3", "possede": 1},
-    {"nom": "bananita dolphinita", "rarete": "EPIC", "base_page": "3", "possede": 1},
-    {"nom": "los lirilitos", "rarete": "EPIC", "base_page": "3", "possede": 1},
-    {"nom": "salamino pinguino", "rarete": "EPIC", "base_page": "3", "possede": 1},
-    {"nom": "tric trac baraboom", "rarete": "EPIC", "base_page": "3", "possede": 1},
-    {"nom": "los tung tungcitos", "rarete": "EPIC", "base_page": "3", "possede": 1},
-    {"nom": "tukano banano", "rarete": "EPIC", "base_page": "3", "possede": 1},
-    {"nom": "blueberrinni octopussini", "rarete": "EPIC", "base_page": "3", "possede": 0},
-    {"nom": "spijuniro golubiro", "rarete": "EPIC", "base_page": "3", "possede": 0},
-    {"nom": "penguini zucchini", "rarete": "EPIC", "base_page": "3", "possede": 1},
-    {"nom": "blueberrini tatticcini", "rarete": "EPIC", "base_page": "3", "possede": 1},
-    {"nom": "gingobalo gingobali", "rarete": "EPIC", "base_page": "3", "possede": 1},
     {"nom": "burbalona loliloli", "rarete": "LEGENDAIRE", "base_page": "4", "possede": 1},
-    {"nom": "chimpanzini bananini", "rarete": "LEGENDAIRE", "base_page": "4", "possede": 1},
-    {"nom": "ballerina capuccina", "rarete": "LEGENDAIRE", "base_page": "4", "possede": 1},
-    {"nom": "chef crabracadabra", "rarete": "LEGENDAIRE", "base_page": "4", "possede": 1},
-    {"nom": "glorbo fruttodilo", "rarete": "LEGENDAIRE", "base_page": "4", "possede": 1},
-    {"nom": "cacto hipopotamo", "rarete": "LEGENDAIRE", "base_page": "4", "possede": 1},
-    {"nom": "ballerino lololo", "rarete": "LEGENDAIRE", "base_page": "4", "possede": 1},
-    {"nom": "leruleruler", "rarete": "LEGENDAIRE", "base_page": "4", "possede": 0},
-    {"nom": "bambini crostini", "rarete": "LEGENDAIRE", "base_page": "4", "possede": 0},
-    {"nom": "francesco", "rarete": "LEGENDAIRE", "base_page": "4", "possede": 1},
-    {"nom": "zibra zubra", "rarete": "LEGENDAIRE", "base_page": "4", "possede": 0},
-    {"nom": "bambu di miale", "rarete": "LEGENDAIRE", "base_page": "4", "possede": 0},
-    {"nom": "mangolini parrocini", "rarete": "LEGENDAIRE", "base_page": "4", "possede": 0},
-    {"nom": "lampu lampu sahur", "rarete": "LEGENDAIRE", "base_page": "4", "possede": 0},
-    {"nom": "octopuss coconuss", "rarete": "LEGENDAIRE", "base_page": "4", "possede": 0},
-    {"nom": "lionelli cactuselli", "rarete": "LEGENDAIRE", "base_page": "4", "possede": 0},
-    {"nom": "elefantucci bananucci", "rarete": "LEGENDAIRE", "base_page": "4", "possede": 0},
-    {"nom": "avocadini antilopini", "rarete": "LEGENDAIRE", "base_page": "4", "possede": 0},
-    {"nom": "dragonini ananassini", "rarete": "LEGENDAIRE", "base_page": "4", "possede": 0},
     {"nom": "frigo camelo", "rarete": "MYTHIC", "base_page": "5", "possede": 1},
-    {"nom": "orangutini ananassini", "rarete": "MYTHIC", "base_page": "5", "possede": 1},
-    {"nom": "bombardiro crocodilo", "rarete": "MYTHIC", "base_page": "5", "possede": 0},
-    {"nom": "bombombini gusini", "rarete": "MYTHIC", "base_page": "5", "possede": 0},
-    {"nom": "gorillo watermelondrillo", "rarete": "MYTHIC", "base_page": "5", "possede": 0},
-    {"nom": "sigma boy", "rarete": "MYTHIC", "base_page": "5", "possede": 0},
-    {"nom": "matteo", "rarete": "MYTHIC", "base_page": "5", "possede": 1},
-    {"nom": "los spijuniritos", "rarete": "MYTHIC", "base_page": "5", "possede": 0},
-    {"nom": "rhino toasterino", "rarete": "MYTHIC", "base_page": "5", "possede": 0},
-    {"nom": "ganganzelli tralala", "rarete": "MYTHIC", "base_page": "5", "possede": 1},
-    {"nom": "te te te sahur", "rarete": "MYTHIC", "base_page": "5", "possede": 0},
-    {"nom": "fireworkito explodito", "rarete": "MYTHIC", "base_page": "5", "possede": 0},
-    {"nom": "strawberelli flamingelli", "rarete": "MYTHIC", "base_page": "5", "possede": 0},
-    {"nom": "elephantino frigorifero", "rarete": "MYTHIC", "base_page": "5", "possede": 0},
-    {"nom": "to to sahur", "rarete": "MYTHIC", "base_page": "5", "possede": 0},
-    {"nom": "elefante cafettino", "rarete": "MYTHIC", "base_page": "5", "possede": 0},
-    {"nom": "antoniooo", "rarete": "MYTHIC", "base_page": "5", "possede": 0},
-    {"nom": "kudanile astronaute", "rarete": "MYTHIC", "base_page": "5", "possede": 0},
-    {"nom": "girafe celeste", "rarete": "MYTHIC", "base_page": "5", "possede": 0},
-    {"nom": "percohello lemonchello", "rarete": "MYTHIC", "base_page": "5", "possede": 0},
-    {"nom": "tang tang kelentang", "rarete": "MYTHIC", "base_page": "5", "possede": 0},
-    {"nom": "avocadorilla", "rarete": "MYTHIC", "base_page": "5", "possede": 1},
-    {"nom": "patapimus maximus", "rarete": "MYTHIC", "base_page": "5", "possede": 0},
-    {"nom": "tirilikalika tirilikaliko", "rarete": "MYTHIC", "base_page": "5", "possede": 0},
-    {"nom": "los matteos", "rarete": "MYTHIC", "base_page": "5", "possede": 0},
-    {"nom": "los sigma", "rarete": "MYTHIC", "base_page": "5", "possede": 0},
-    {"nom": "ti ti sahur", "rarete": "MYTHIC", "base_page": "5", "possede": 0},
     {"nom": "cocofanto elephanto", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "tob tobi tob", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "tralalero tralala", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "odin din dun", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "chachechicha", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "akulini cactusini", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "espressona signora", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "la vaca saturno", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "centralucci nuclearucci", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "ecco cavalo virtuoso", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "los vaquitas saturnitas", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "bulbito bandito traktorito", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "bananananito bandito", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "chillin chili", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "tripi tropi tropa tripa", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "bri bri bicus dicus", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "cioccolatini pancioncioni", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "brr es teh patipum", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "tortugini dragonfrutinni", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "los bros", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "bim bim sadim", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "bambini tankini", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "jiqui chizon", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "los crocodillos", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "agarrinis lapalini", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "alessioooooo", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "dig torto dolf", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "karkerkar", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "Il constructor di pomodori", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "piccionetta machina", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "pipoquera motoqueira", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "ll piccione musculone", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "job job sahur", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "la sis", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "la matcha assasino", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "Il mastodontico telepiedone", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "malame amarale", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "Il bisonte giuppitere", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "linguicine serpentine", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "belugelo béluga", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "missilepython turbozzo", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "auglurini arbuzini", "rarete": "BRAINROTGOD", "base_page": "6", "possede": 0},
-    {"nom": "los tralaleritos", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "los tralaleritas", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "trenostruzzo turbo 3000", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "kravelino cekicino", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "los orcaleritos", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "los couple", "rarete": "SECRET", "base_page": "7", "possede": 0},
     {"nom": "las agarrinis", "rarete": "SECRET", "base_page": "7", "possede": 1},
-    {"nom": "piccione machina", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "pakrahmat-mamatcita", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "pakrahmatmamat", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "los job jobcitos", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "anpali babel", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "los karkeritos", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "orcalero orcala", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "frogino assassino", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "pickolini malakini", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "ketchuru and musturu", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "trenostruzzo turbo 4000", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "pot hotspotina", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "pot hotspot", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "21", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "los mobilis", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "nooo my hotspot", "rarete": "SECRET", "base_page": "Inconnue", "possede": 0},
-    {"nom": "frogatto piratto", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "garamarama-dungdung", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "papero aspiratorino", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "pirulitoita bicicletera", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "chachechi sahur", "rarete": "SECRET", "base_page": "7", "possede": 1},
-    {"nom": "Il sacro cabrospaghetti", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "tatoruman", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "chicleterina bicicleteirina", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "owlito tactito", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "la grande combinacion", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "yess my hotspot", "rarete": "SECRET", "base_page": "7", "possede": 1},
-    {"nom": "le golem de frigider", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "cornball sahur", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "67", "rarete": "SECRET", "base_page": "7", "possede": 1},
-    {"nom": "los esok sekolitos", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "roobinha acerolinha", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "coccoblade", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "chicletera bicicletera", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "cacasito satellite", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "dilly pickle", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "pingus kingus", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "ketupat kepat", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "cocobladina", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "catino timeno", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "dul dul dul", "rarete": "SECRET", "base_page": "7", "possede": 1},
-    {"nom": "reng reng kelerang", "rarete": "SECRET", "base_page": "7", "possede": 1},
-    {"nom": "w or l", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "no my bicicletera", "rarete": "SECRET", "base_page": "7", "possede": 1},
-    {"nom": "krr krr kataking", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "los garamadungcitos", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "aquanaut", "rarete": "SECRET", "base_page": "7", "possede": 1},
-    {"nom": "lirili ralilu", "rarete": "SECRET", "base_page": "7", "possede": 1},
-    {"nom": "mc pene dougal", "rarete": "SECRET", "base_page": "7", "possede": 1},
-    {"nom": "la esok sekolah", "rarete": "SECRET", "base_page": "7", "possede": 1},
-    {"nom": "jisaoba dashi", "rarete": "SECRET", "base_page": "7", "possede": 1},
-    {"nom": "pitita baem", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "bau wang Wolf monarca", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "chimpanzini kingini", "rarete": "SECRET", "base_page": "7", "possede": 1},
-    {"nom": "strawberry elephant", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "tictac tictac sahur", "rarete": "SECRET", "base_page": "7", "possede": 1},
-    {"nom": "shtekerito bulbonito", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "mechavallo", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "spaghetti tualetti", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "cabritos brotheritos", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "alligarto alligarto", "rarete": "SECRET", "base_page": "7", "possede": 1},
-    {"nom": "gorgonzilla", "rarete": "SECRET", "base_page": "7", "possede": 1},
-    {"nom": "la crazy", "rarete": "SECRET", "base_page": "7", "possede": 1},
-    {"nom": "croissantini et caffettino", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "gigalitraktos spidorobos", "rarete": "SECRET", "base_page": "7", "possede": 1},
-    {"nom": "bearinni", "rarete": "SECRET", "base_page": "7", "possede": 1},
-    {"nom": "tiramisubmarini", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "garbagzilla", "rarete": "SECRET", "base_page": "7", "possede": 1},
-    {"nom": "cannone maledettone", "rarete": "SECRET", "base_page": "7", "possede": 1},
-    {"nom": "CANNELLONI DRAGONI", "rarete": "SECRET", "base_page": "7", "possede": 0},
-    {"nom": "VULTURINO SKELETONO", "rarete": "SECRET", "base_page": "7", "possede": 0}
+    # ... (Tu pourras rajouter les autres plus tard, testons d'abord avec ceux-là)
 ]
 
-# --- SÉCURITÉ ANTI-CRASH (On force le type) ---
+# --- 2. INITIALISATION ULTRA-SÉCURISÉE ---
+# Si 'items' n'existe pas OU si ce n'est pas une liste, on RAZ (Remise à Zéro)
 if 'items' not in st.session_state or not isinstance(st.session_state.items, list):
-    st.session_state.items = LISTE_FIXE
+    st.session_state.items = DONNEES_INITIALES
 
-# --- INTERFACE ---
+# --- 3. INTERFACE ---
 st.title("💎 BRAINROT COLLECTOR")
 
-search = st.text_input("Rechercher un item...")
-rarete_list = sorted(list(set([i['rarete'] for i in st.session_state.items])))
-filtre = st.selectbox("Filtrer par rareté", ["TOUS"] + rarete_list)
+# On utilise une variable locale pour être sûr de ne pas travailler sur du "vide"
+items_actifs = st.session_state.items
 
-# Affichage
-for index, item in enumerate(st.session_state.items):
-    if search.lower() not in item['nom'].lower():
+# Barre de recherche et Filtre
+search = st.text_input("Rechercher un item...", "")
+
+# Récupération sécurisée des raretés pour le menu déroulant
+toutes_raretes = sorted(list(set([i.get('rarete', 'Inconnue') for i in items_actifs])))
+filtre = st.selectbox("Filtrer par rareté", ["TOUS"] + toutes_raretes)
+
+st.write("---")
+
+# --- 4. AFFICHAGE ---
+for index, item in enumerate(items_actifs):
+    nom = item.get('nom', 'Sans nom')
+    rarete = item.get('rarete', 'Inconnue')
+    
+    # Logique de filtrage
+    if search.lower() not in nom.lower():
         continue
-    if filtre != "TOUS" and item['rarete'] != filtre:
+    if filtre != "TOUS" and rarete != filtre:
         continue
 
-    c1, c2, c3 = st.columns([1, 6, 3])
+    # Colonnes d'affichage
+    c1, c2, c3 = st.columns([1, 4, 2])
     with c1:
-        is_owned = item['possede'] == 1
-        if st.button("✅" if is_owned else "⬜", key=f"btn_{index}"):
-            st.session_state.items[index]['possede'] = 0 if is_owned else 1
+        # Système de check
+        label = "✅" if item.get('possede') == 1 else "⬜"
+        if st.button(label, key=f"btn_{index}"):
+            # On inverse la possession
+            st.session_state.items[index]['possede'] = 0 if item.get('possede') == 1 else 1
             st.rerun()
     with c2:
-        st.write(f"**{item['nom']}**")
+        st.subheader(nom)
     with c3:
-        st.caption(f"{item['rarete']} | Page {item['base_page']}")
+        st.info(f"{rarete} (Page {item.get('base_page', '?')})")
 
-# Sauvegarde
-st.sidebar.title("💾 SAUVEGARDE")
-if st.sidebar.button("Générer le code de sauvegarde"):
+# Sidebar pour sauvegarder manuellement
+st.sidebar.header("💾 Sauvegarde")
+if st.sidebar.button("Afficher le code de sauvegarde"):
     st.sidebar.code(f"st.session_state.items = {st.session_state.items}")
