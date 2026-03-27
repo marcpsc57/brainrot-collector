@@ -1,39 +1,35 @@
 import streamlit as st
-import pandas as pd
-import gspread
-from google.oauth2.service_account import Credentials
+from donnees import ITEMS_DEFAUT
 
 st.set_page_config(page_title="BRAINROT COLLECTOR", layout="wide")
 
-@st.cache_resource
-def connect_to_gsheet():
-    # On récupère le dictionnaire directement depuis les secrets de Streamlit
-    # Ça évite toute corruption de texte ou d'encodage
-    info = st.secrets["gcp_service_account"]
-    
-    scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-    creds = Credentials.from_service_account_info(info, scopes=scope)
-    return gspread.authorize(creds)
-
-try:
-    gc = connect_to_gsheet()
-    sh = gc.open_by_key("1QpDkvd06ZmAWbVmFvpOdFO0_Tb3UvNMVnPlSy3hPzwQ")
-    worksheet = sh.get_worksheet(0)
-    df = pd.DataFrame(worksheet.get_all_records())
-except Exception as e:
-    st.error(f"Erreur : {e}")
-    st.stop()
+# Initialisation de la liste dans la session
+if 'items' not in st.session_state:
+    st.session_state.items = ITEMS_DEFAUT
 
 st.title("💎 BRAINROT COLLECTOR")
+st.write(f"Total d'items : {len(st.session_state.items)}")
 
-if not df.empty:
-    for index, row in df.iterrows():
-        c1, c2 = st.columns([1, 9])
-        with c1:
-            is_owned = str(row.get('possede', 0)) == "1"
-            if st.button("✅" if is_owned else "⬜", key=f"btn_{index}"):
-                new_val = 1 if not is_owned else 0
-                worksheet.update_cell(index + 2, 5, new_val)
-                st.rerun()
-        with c2:
-            st.write(f"**{row.get('nom', 'Inconnu')}**")
+# Filtrage par rareté (Optionnel)
+rarete_unique = sorted(list(set([i['rarete'] for i in st.session_state.items])))
+choix = st.selectbox("Filtrer par rareté", ["TOUS"] + rarete_unique)
+
+# Affichage
+for index, item in enumerate(st.session_state.items):
+    if choix != "TOUS" and item['rarete'] != choix:
+        continue
+        
+    c1, c2, c3 = st.columns([1, 6, 3])
+    with c1:
+        is_owned = item['possede'] == 1
+        if st.button("✅" if is_owned else "⬜", key=f"btn_{index}"):
+            st.session_state.items[index]['possede'] = 0 if is_owned else 1
+            st.rerun()
+    with c2:
+        st.write(f"**{item['nom']}**")
+    with c3:
+        st.caption(f"Rareté: {item['rarete']} | Page: {item['base_page']}")
+
+# Bouton de sauvegarde (génère le code à copier dans donnees.py pour garder tes changements)
+if st.sidebar.button("💾 Sauvegarder mes coches"):
+    st.sidebar.code(f"ITEMS_DEFAUT = {st.session_state.items}")
