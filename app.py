@@ -2,7 +2,7 @@ import streamlit as st
 
 st.set_page_config(page_title="BRAINROT COLLECTOR", layout="wide")
 
-# --- TA LISTE INTÉGRÉE (PLUS BESOIN D'IMPORT) ---
+# --- INITIALISATION SÉCURISÉE ---
 if 'items' not in st.session_state:
     st.session_state.items = [
         {"nom": "fishini bossini", "rarete": "COMMON", "base_page": "1", "possede": 1},
@@ -206,32 +206,35 @@ if 'items' not in st.session_state:
 # --- INTERFACE ---
 st.title("💎 BRAINROT COLLECTOR")
 
-# Barre de recherche et filtres
-search = st.text_input("Rechercher un item...")
-rarete_list = sorted(list(set([i['rarete'] for i in st.session_state.items])))
-filtre = st.selectbox("Filtrer par rareté", ["TOUS"] + rarete_list)
+# On vérifie que la liste existe bien avant de créer les filtres
+if 'items' in st.session_state and len(st.session_state.items) > 0:
+    search = st.text_input("Rechercher un item...")
+    
+    # Création sécurisée de la liste de rareté
+    rarete_list = sorted(list(set([i['rarete'] for i in st.session_state.items if 'rarete' in i])))
+    filtre = st.selectbox("Filtrer par rareté", ["TOUS"] + rarete_list)
 
-# Affichage des items
-for index, item in enumerate(st.session_state.items):
-    # Logique de filtrage
-    if search.lower() not in item['nom'].lower():
-        continue
-    if filtre != "TOUS" and item['rarete'] != filtre:
-        continue
+    # Affichage des items
+    for index, item in enumerate(st.session_state.items):
+        if search.lower() not in item['nom'].lower():
+            continue
+        if filtre != "TOUS" and item['rarete'] != filtre:
+            continue
 
-    c1, c2, c3 = st.columns([1, 6, 3])
-    with c1:
-        is_owned = item['possede'] == 1
-        if st.button("✅" if is_owned else "⬜", key=f"btn_{index}"):
-            st.session_state.items[index]['possede'] = 0 if is_owned else 1
-            st.rerun()
-    with c2:
-        st.write(f"**{item['nom']}**")
-    with c3:
-        st.caption(f"{item['rarete']} | Page {item['base_page']}")
+        c1, c2, c3 = st.columns([1, 6, 3])
+        with c1:
+            is_owned = item['possede'] == 1
+            if st.button("✅" if is_owned else "⬜", key=f"btn_{index}"):
+                st.session_state.items[index]['possede'] = 0 if is_owned else 1
+                st.rerun()
+        with c2:
+            st.write(f"**{item['nom']}**")
+        with c3:
+            st.caption(f"{item['rarete']} | Page {item['base_page']}")
+else:
+    st.error("La liste d'items n'a pas pu être chargée. Réessaye de rafraîchir la page.")
 
-# Bouton de sauvegarde (Side bar)
+# Sauvegarde
 st.sidebar.title("💾 SAUVEGARDE")
 if st.sidebar.button("Générer le code de sauvegarde"):
-    st.sidebar.info("Copie ce code et remplace la liste dans ton app.py sur GitHub pour garder tes coches définitivement.")
     st.sidebar.code(f"st.session_state.items = {st.session_state.items}")
