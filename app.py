@@ -5,8 +5,9 @@ from google.oauth2.service_account import Credentials
 
 st.set_page_config(page_title="BRAINROT COLLECTOR", layout="wide")
 
-# 1. TA CLÉ BRUTE (Copie-colle là exactement comme dans ton JSON)
-# Assure-toi qu'il n'y a rien AVANT le premier tiret et rien APRÈS le dernier.
+# 1. TA CLÉ BRUTE
+# Colle ta clé ici entre les triple guillemets. 
+# Ne t'inquiète pas s'il y a des espaces, le code va les supprimer.
 raw_key = """-----BEGIN PRIVATE KEY-----
 MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDTxx+vkltYKShm
 ou26Gnfx6o68qjPyvBSpjbiuFxReayb4hxvnOv18R3JSPQuzhUxd9q985UgJ6jbU
@@ -36,8 +37,8 @@ nu4evFiO9JRM/wOR6oepL67H+jNDvq4Ea9g7t7QPyy/92aGaNYlPYZAqEazIejD6P
 ngo1rYlMIKdhVHrntqYUuxKc=
 -----END PRIVATE KEY-----"""
 
-# 2. NETTOYAGE AUTOMATIQUE (Anti-erreur "Extra Data")
-# On découpe la clé ligne par ligne, on enlève les espaces invisibles et on recolle.
+# 2. NETTOYAGE CHIRURGICAL
+# On enlève les espaces, on découpe par ligne, et on ignore les lignes vides
 lines = [l.strip() for l in raw_key.strip().splitlines() if l.strip()]
 CLEAN_KEY = "\n".join(lines)
 
