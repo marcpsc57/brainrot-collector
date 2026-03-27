@@ -1,68 +1,67 @@
 import streamlit as st
-from google.cloud import firestore
-from google.oauth2 import service_account
-import json
+import firebase_admin
+from firebase_admin import credentials, firestore
 
-st.set_page_config(page_title="BRAINROT COLLECTOR LIVE", layout="wide")
+# --- CONFIG PAGE ---
+st.set_page_config(page_title="Ma Collection Légendaire", layout="wide")
 
-# --- CONNEXION À GOOGLE ---
-try:
-    info = json.loads(st.secrets["firebase"]["service_account_json"])
-    creds = service_account.Credentials.from_service_account_info(info)
-    db = firestore.Client(credentials=creds, project=info['project_id'])
-except Exception as e:
-    st.error("❌ Erreur de connexion : Vérifie tes Secrets Streamlit !")
-    st.stop()
+# --- DESIGN (TES COULEURS) ---
+st.markdown("""
+    <style>
+    .main { background-color: #1e1e1e; }
+    .stButton>button {
+        width: 100%;
+        border-radius: 10px;
+        height: 3em;
+        background-color: #3e3e3e;
+        color: white;
+    }
+    /* Couleurs par Rareté */
+    .rare-common { color: #ffffff; }
+    .rare-rare { color: #55ff55; font-weight: bold; }
+    .rare-epic { color: #bb66ff; font-weight: bold; }
+    .rare-legendaire { color: #ffcc00; font-weight: bold; text-shadow: 0px 0px 5px gold; }
+    .rare-mythic { color: #ff4444; font-weight: bold; text-shadow: 0px 0px 8px red; }
+    .rare-brainrotgod { color: #00ffff; font-weight: bold; }
+    .rare-secret { color: #ff00ff; font-weight: bold; animation: blinker 1s linear infinite; }
+    @keyframes blinker { 50% { opacity: 0; } }
+    </style>
+    """, unsafe_allow_html=True)
 
-# --- RÉCUPÉRER LES DONNÉES ---
-def get_data():
-    docs = db.collection("items").stream()
-    return {doc.id: doc.to_dict() for doc in docs}
+# --- CONNEXION FIREBASE ---
+if not firebase_admin._apps:
+    cred = credentials.Certificate("serviceAccountKey.json")
+    firebase_admin.initialize_app(cred)
+db = firestore.client()
 
-items_data = get_data()
+st.title("🃏 Ma Collection de Cartes")
 
-st.title("💎 BRAINROT COLLECTOR (MODE LIVE)")
+# --- SYSTÈME D'ONGLETS (CATÉGORIES) ---
+categories = ["TOUT", "COMMON", "RARE", "EPIC", "LEGENDAIRE", "MYTHIC", "BRAINROTGOD", "SECRET"]
+onglet_choisi = st.tabs(categories)
 
-# --- LE BOUTON POUR TOUT ALLUMER ---
-# Si la base est vide, on affiche ce gros bouton
-if not items_data:
-    st.warning("La base de données est vide chez Google !")
-    if st.button("🚀 CLIQUE ICI POUR ENVOYER TES 150 ITEMS D'UN COUP"):
-        # Liste simplifiée de tes items
-        ma_liste = [
-            {"nom": "fishini bossini", "rarete": "COMMON"},
-            {"nom": "pipi kiwi", "rarete": "COMMON"},
-            {"nom": "trippi troppi", "rarete": "RARE"},
-            {"nom": "las agarrinis", "rarete": "SECRET"},
-            # Tu pourras en rajouter d'autres ici plus tard
-        ]
-        
-        with st.spinner("Envoi vers Firebase..."):
-            for item in ma_liste:
-                db.collection("items").document(item['nom']).set({
-                    "nom": item['nom'],
-                    "rarete": item['rarete'],
-                    "possede": 0  # 0 = pas coché
-                })
-        st.success("🔥 C'est fait ! Rafraîchis la page.")
-        st.rerun()
+def afficher_items(filter_rarete=None):
+    items_ref = db.collection("items")
+    if filter_rarete and filter_rarete != "TOUT":
+        docs = items_ref.where("rarete", "==", filter_rarete).stream()
+    else:
+        docs = items_ref.stream()
 
-# --- L'INTERFACE POUR TOI ET TES CHUMS ---
-if items_data:
-    search = st.text_input("🔍 Rechercher un item...")
-    
-    for name in sorted(items_data.keys()):
-        item = items_data[name]
-        if search.lower() not in name.lower(): continue
-            
-        col_check, col_txt = st.columns([1, 8])
-        with col_check:
-            # Quand tu cliques, ça change chez Google pour TOUT LE MONDE
-            val = item.get('possede', 0)
-            label = "✅" if val == 1 else "⬜"
-            if st.button(label, key=f"btn_{name}"):
-                nouveau = 1 if val == 0 else 0
-                db.collection("items").document(name).update({"possede": nouveau})
+    cols = st.columns(4) # 4 items par ligne
+    idx = 0
+    for doc in docs:
+        data = doc.to_dict()
+        with cols[idx % 4]:
+            st.markdown(f"### <span class='rare-{data['rarete'].lower()}'>{data['nom']}</span>", unsafe_allow_html=True)
+            st.write(f"Rareté: {data['rarete']}")
+            st.write(f"Possédé: **{data['possede']}**")
+            if st.button(f"+1", key=doc.id):
+                new_val = data['possede'] + 1
+                db.collection("items").document(doc.id).update({"possede": new_val})
                 st.rerun()
-        with col_txt:
-            st.write(f"**{name.upper()}** - {item.get('rarete')}")
+        idx += 1
+
+# --- AFFICHAGE SELON L'ONGLET ---
+for i, cat in enumerate(categories):
+    with onglet_choisi[i]:
+        afficher_items(cat)
