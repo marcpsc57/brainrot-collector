@@ -3,79 +3,31 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 # --- 1. CONFIGURATION DE LA PAGE ---
-st.set_page_config(page_title="Brainrot Collector - Custom Colors", layout="wide")
+st.set_page_config(page_title="Brainrot Collector - FLASH EDITION", layout="wide")
 
-# --- 2. DESIGN & COULEURS (CSS PERSONNALISÉ) ---
+# --- 2. DESIGN & FLASH COLORS (CSS) ---
 st.markdown("""
     <style>
     .main { background-color: #0e1117; }
     
-    /* Style global des boutons */
-    .stButton > button {
-        width: 100%;
-        border-radius: 5px;
-        font-weight: bold;
-    }
-    
-    /* Boutons ➕ et ➖ */
-    .btn-plus > div > button { 
-        background-color: #00cc66 !important; /* Vert foncé pour le fond du bouton + */
-        color: white !important; 
-    }
-    .btn-moins > div > button { 
-        background-color: #ff4444 !important; /* Rouge foncé pour le fond du bouton - */
-        color: white !important; 
-    }
+    /* Animation Flash / Pulsation */
+    @keyframes flash-green { 0%, 100% { color: #00ff00; text-shadow: 0 0 5px #00ff00; } 50% { color: #008800; text-shadow: 0 0 20px #00ff00; } }
+    @keyframes flash-blue { 0%, 100% { color: #0088ff; text-shadow: 0 0 5px #0088ff; } 50% { color: #0044bb; text-shadow: 0 0 20px #0088ff; } }
+    @keyframes flash-purple { 0%, 100% { color: #cc00ff; text-shadow: 0 0 5px #cc00ff; } 50% { color: #770099; text-shadow: 0 0 20px #cc00ff; } }
+    @keyframes flash-yellow { 0%, 100% { color: #ffff00; text-shadow: 0 0 5px #ffff00; } 50% { color: #aa8800; text-shadow: 0 0 25px #ffff00; } }
+    @keyframes flash-red { 0%, 100% { color: #ff0000; text-shadow: 0 0 5px #ff0000; } 50% { color: #880000; text-shadow: 0 0 30px #ff0000; } }
+    @keyframes flash-pink { 0%, 100% { color: #ff007f; text-shadow: 0 0 5px #ff007f; } 50% { color: #aa0055; text-shadow: 0 0 30px #ff007f; } }
+    @keyframes flash-white { 0%, 100% { color: #ffffff; text-shadow: 0 0 5px #ffffff; } 50% { color: #888888; text-shadow: 0 0 40px #ffffff; } }
 
-    /* Style pour le texte de rareté affiché sous le nom */
-    .stCaption {
-        font-size: 0.9rem;
-        color: #888888;
-    }
+    .rare-common { animation: flash-green 2s infinite; font-weight: bold; }
+    .rare-rare { animation: flash-blue 2s infinite; font-weight: bold; }
+    .rare-epic { animation: flash-purple 1.5s infinite; font-weight: bold; }
+    .rare-legendaire { animation: flash-yellow 1.2s infinite; font-weight: bold; }
+    .rare-mythic { animation: flash-red 1s infinite; font-weight: bold; }
+    .rare-brainrotgod { animation: flash-pink 0.8s infinite; font-weight: bold; }
+    .rare-secret { animation: flash-white 0.5s infinite; font-weight: bold; }
 
-    /* --- NOUVELLES COULEURS DES NOMS (Comme demandé) --- */
-    
-    /* COMMON = Vert */
-    .rare-common { color: #00ff00; font-weight: bold; }
-    
-    /* RARE = Bleu */
-    .rare-rare { color: #0088ff; font-weight: bold; }
-    
-    /* EPIC = Mauve */
-    .rare-epic { color: #cc00ff; font-weight: bold; }
-    
-    /* LEGENDARY = Jaune */
-    .rare-legendaire { 
-        color: #ffff00; 
-        font-weight: bold; 
-        text-shadow: 0px 0px 3px rgba(255, 255, 0, 0.5); /* Léger halo jaune */
-    }
-    
-    /* MYTHIC = Rouge */
-    .rare-mythic { 
-        color: #ff0000; 
-        font-weight: bold; 
-        text-shadow: 0px 0px 5px rgba(255, 0, 0, 0.7); /* Halo rouge plus prononcé */
-    }
-    
-    /* BRAINROTGOD = Rose */
-    .rare-brainrotgod { 
-        color: #ff007f; /* Rose vif */
-        font-weight: bold; 
-        text-shadow: 0px 0px 5px rgba(255, 0, 127, 0.7); /* Halo rose */
-    }
-    
-    /* SECRET = Blanc */
-    .rare-secret { 
-        color: #ffffff; /* Blanc pur */
-        font-weight: bold; 
-        animation: blinker 2s linear infinite; /* Animation de clignotement lent */
-        text-shadow: 0px 0px 10px rgba(255, 255, 255, 0.8); /* Halo blanc brillant */
-    }
-    
-    /* Animation pour le Secret */
-    @keyframes blinker { 50% { opacity: 0.2; } }
-    
+    .stButton > button { width: 100%; border-radius: 5px; font-weight: bold; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -83,13 +35,11 @@ st.markdown("""
 if not firebase_admin._apps:
     cred = credentials.Certificate("serviceAccountKey.json")
     firebase_admin.initialize_app(cred)
-
 db = firestore.client()
 
 # --- 4. BARRE DE RECHERCHE ET TITRE ---
-st.title("🧪 Brainrot Collector - Custom Colors")
-st.write("Trouve tes items et gère tes doublons avec style !")
-recherche = st.text_input("🔍 Recherche un item par son nom...", "").lower()
+st.title("🧪 Brainrot Collector - FLASH EDITION")
+recherche = st.text_input("🔍 Trouve ton Brainrot...", "").lower()
 
 # --- 5. SYSTÈME D'ONGLETS ---
 categories = ["TOUT", "COMMON", "RARE", "EPIC", "LEGENDAIRE", "MYTHIC", "BRAINROTGOD", "SECRET"]
@@ -98,55 +48,55 @@ onglets = st.tabs(categories)
 # --- 6. FONCTION D'AFFICHAGE ---
 def afficher_la_liste(filtre_cat, texte_recherche):
     items_ref = db.collection("items")
-    docs = items_ref.stream() # On récupère tout
-    
+    docs = items_ref.stream()
     items_filtres = []
     for doc in docs:
         d = doc.to_dict()
         d['id'] = doc.id
-        
-        # Filtre Catégorie
-        if filtre_cat != "TOUT" and d['rarete'] != filtre_cat:
-            continue
-            
-        # Filtre Recherche
-        if texte_recherche and texte_recherche not in d['nom'].lower():
-            continue
-            
-        items_filtres.append(d)
+        if (filtre_cat == "TOUT" or d['rarete'] == filtre_cat) and (not texte_recherche or texte_recherche in d['nom'].lower()):
+            items_filtres.append(d)
 
     if not items_filtres:
-        st.info("Aucun item trouvé.")
+        st.info("Rien trouvé boss.")
         return
 
-    # Grille de 4 colonnes
     cols = st.columns(4)
     for i, item in enumerate(items_filtres):
         with cols[i % 4]:
             rare_style = item['rarete'].lower()
-            
-            # --- TITRE AVEC LA NOUVELLE COULEUR ---
             st.markdown(f"### <span class='rare-{rare_style}'>{item['nom']}</span>", unsafe_allow_html=True)
+            st.metric(label=f"Rarete: {item['rarete']}", value=item['possede'])
             
-            # Autres infos
-            st.caption(f"Rareté : {item['rarete']}")
-            st.metric(label="Possédé", value=item['possede'])
-            
-            # Deux colonnes pour les boutons ➕ et ➖
             c1, c2 = st.columns(2)
             with c1:
-                if st.button(f"➕", key=f"add_{filtre_cat}_{item['id']}", help="Ajouter 1"):
+                if st.button(f"➕", key=f"add_{filtre_cat}_{item['id']}"):
                     db.collection("items").document(item['id']).update({"possede": item['possede'] + 1})
                     st.rerun()
             with c2:
-                # On s'assure de ne pas descendre en dessous de 0
-                if st.button(f"➖", key=f"sub_{filtre_cat}_{item['id']}", help="Retirer 1"):
+                if st.button(f"➖", key=f"sub_{filtre_cat}_{item['id']}"):
                     if item['possede'] > 0:
                         db.collection("items").document(item['id']).update({"possede": item['possede'] - 1})
                         st.rerun()
             st.divider()
 
-# --- 7. GÉNÉRATION DES ONGLETS ---
 for i, cat in enumerate(categories):
     with onglets[i]:
         afficher_la_liste(cat, recherche)
+
+# --- 7. AJOUT DE NOUVEAUX ITEMS (LE FORMULAIRE) ---
+st.write("---")
+with st.expander("➕ AJOUTER UN NOUVEL ITEM (ADMIN ONLY)"):
+    new_nom = st.text_input("Nom de l'item")
+    new_rarete = st.selectbox("Rareté", ["COMMON", "RARE", "EPIC", "LEGENDAIRE", "MYTHIC", "BRAINROTGOD", "SECRET"])
+    if st.button("Enregistrer dans la base"):
+        if new_nom:
+            doc_id = new_nom.lower().replace(" ", "_").replace("'", "_")
+            db.collection("items").document(doc_id).set({
+                "nom": new_nom,
+                "rarete": new_rarete,
+                "possede": 0
+            })
+            st.success(f"{new_nom} a été ajouté !")
+            st.rerun()
+        else:
+            st.error("Mets un nom siboire !")
