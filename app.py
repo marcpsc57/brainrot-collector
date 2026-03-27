@@ -5,10 +5,8 @@ from google.oauth2.service_account import Credentials
 
 st.set_page_config(page_title="BRAINROT COLLECTOR", layout="wide")
 
-# --- COLLAGE DE LA CLÉ ---
-# 1. Ouvre ton fichier JSON avec le BLOC-NOTES.
-# 2. Copie TOUTE la valeur de "private_key" (entre les guillemets).
-# 3. Colle-la ici entre les triple guillemets ci-dessous.
+# 1. TA CLÉ BRUTE (Copie-colle là exactement comme dans ton JSON)
+# Assure-toi qu'il n'y a rien AVANT le premier tiret et rien APRÈS le dernier.
 raw_key = """-----BEGIN PRIVATE KEY-----
 MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDTxx+vkltYKShm
 ou26Gnfx6o68qjPyvBSpjbiuFxReayb4hxvnOv18R3JSPQuzhUxd9q985UgJ6jbU
@@ -38,8 +36,10 @@ nu4evFiO9JRM/wOR6oepL67H+jNDvq4Ea9g7t7QPyy/92aGaNYlPYZAqEazIejD6P
 ngo1rYlMIKdhVHrntqYUuxKc=
 -----END PRIVATE KEY-----"""
 
-# Nettoyage automatique : on remplace les faux sauts de ligne par des vrais
-CLEAN_KEY = raw_key.strip().replace("\\n", "\n")
+# 2. NETTOYAGE AUTOMATIQUE (Anti-erreur "Extra Data")
+# On découpe la clé ligne par ligne, on enlève les espaces invisibles et on recolle.
+lines = [l.strip() for l in raw_key.strip().splitlines() if l.strip()]
+CLEAN_KEY = "\n".join(lines)
 
 SERVICE_ACCOUNT_INFO = {
     "type": "service_account",
@@ -75,7 +75,6 @@ if not df.empty:
     for index, row in df.iterrows():
         c1, c2 = st.columns([1, 9])
         with c1:
-            # On vérifie la colonne de possession (colonne E)
             is_owned = str(row.get('possede', 0)) == "1"
             if st.button("✅" if is_owned else "⬜", key=f"btn_{index}"):
                 new_val = 1 if not is_owned else 0
